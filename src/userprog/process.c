@@ -52,7 +52,7 @@ process_execute (const char *file_name)
   
   // tokenizing arguments
   i = 1;
-  while( ( args[i] = strok_r(NULL, delim, saveptr) ) != NULL )
+  while( ( args[i] = strtok_r(NULL, delim, saveptr) ) != NULL )
   {
   	i++;
   }
@@ -452,6 +452,8 @@ setup_stack (void **esp)
   uint8_t *kpage;
   bool success = false;
   char *ptr = (char *)*esp;
+  char * local[128];
+  char *argv_ptr;
   int i;
 
   kpage = palloc_get_page (PAL_USER | PAL_ZERO);
@@ -468,16 +470,35 @@ setup_stack (void **esp)
     // strings of arguments
     for (i = argc - 1; i >= 0; i--)
     {
-      esp -= strlen(argv[i]) + 1; // pointer operation
-      strlcp(esp, argv[i], strlen(argv[i])); // copy argv[i] to esp, deep copy
+      ptr -= strlen(args[i]) + 1; // pointer operation, +1 for '\0'
+      local[i] = (char *)((char *)esp - ptr);
+      strlcpy(ptr, args[i], strlen(args[i])); // copy argv[i] to esp, deep copy
     }
 
-    // TODO
     // word-align, make esp 4 * n
+    ptr -=(char *)((int) ptr % 4 );
 
     // pointer of arguments
-
+    for(i = argc -1; i >= 0; i--)
+    {
+      ptr -= sizeof(char *);
+      *ptr = local[i];
+    }
+  
     // argv and argc
+    argv_ptr = ptr;
+    ptr -= sizeof(char **);
+    *ptr = argv_ptr;
+    ptr -= sizeof(int);
+    *ptr = argc;
+
+    //return address
+    ptr -= sizeof(void (*)());
+    *ptr = 0;
+
+    // make the esp point to the top of stack
+    *esp = (void *)ptr;
+	
   }
   return success;
 }
