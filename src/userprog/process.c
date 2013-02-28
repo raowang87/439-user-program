@@ -20,7 +20,10 @@
 
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
-static char *arg[128];
+// save the tokenized arguments from command line
+static char *args[128];
+// length of arguments (including file name)
+static int argc;
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
@@ -31,6 +34,7 @@ process_execute (const char *file_name)
 {
   char *fn_copy, *file_name_initial, *delim = " ";
   char **saveptr;
+  int i;
   tid_t tid;
 
   /* Make a copy of FILE_NAME.
@@ -42,10 +46,20 @@ process_execute (const char *file_name)
 
   /* MODIFIED get file name */
   strlcpy (file_name_initial, file_name, PGSIZE);
-  file_name_initial = strtok_r(file_name_initial, delim, saveptr);
+  
+  // args[0] contains the file name which need to be executed
+  args[0] = strtok_r(file_name_initial, delim, saveptr);
+  
+  // tokenizing arguments
+  i = 1;
+  while( ( args[i] = strok_r(NULL, delim, saveptr) ) != NULL )
+  {
+  	i++;
+  }
+  argc = i;
 
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (file_name_initial, PRI_DEFAULT, start_process, fn_copy);
+  tid = thread_create (args[0], PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
   return tid;
@@ -437,6 +451,8 @@ setup_stack (void **esp)
 {
   uint8_t *kpage;
   bool success = false;
+  char *ptr = (char *)*esp;
+  int i;
 
   kpage = palloc_get_page (PAL_USER | PAL_ZERO);
   if (kpage != NULL) 
@@ -447,6 +463,22 @@ setup_stack (void **esp)
       else
         palloc_free_page (kpage);
     }
+  if(success)
+  {
+    // strings of arguments
+    for (i = argc - 1; i >= 0; i--)
+    {
+      esp -= strlen(argv[i]) + 1; // pointer operation
+      strlcp(esp, argv[i], strlen(argv[i])); // copy argv[i] to esp, deep copy
+    }
+
+    // TODO
+    // word-align, make esp 4 * n
+
+    // pointer of arguments
+
+    // argv and argc
+  }
   return success;
 }
 
