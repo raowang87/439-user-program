@@ -20,12 +20,6 @@
 
 static thread_func start_process NO_RETURN;
 static bool load (const char *cmdline, void (**eip) (void), void **esp);
-// save the tokenized arguments from command line
-static char *args[128];
-// length of arguments (including file name)
-static int argc;
-// handler of esp
-void *global_esp;
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
@@ -34,8 +28,7 @@ void *global_esp;
 tid_t
 process_execute (const char *file_name) 
 {
-  char *fn_copy, *delim = " ", *savestr;
-  int i;
+  char *fn_copy, *file_title, *delim = " ", *savestr;
   tid_t tid;
 
   /* Make a copy of FILE_NAME.
@@ -46,22 +39,12 @@ process_execute (const char *file_name)
   strlcpy (fn_copy, file_name, PGSIZE);
 
   // args[0] contains the file name which need to be executed
-  args[0] = strtok_r(file_name, delim, &savestr);
+  file_title = strtok_r(file_name, delim, &savestr);
   
-  // tokenizing arguments
-  i = 1;
-  while( ( args[i] = strtok_r(NULL, delim, &savestr) ) != NULL ) {
-  	i++;
-  }
-  argc = i;
-
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (args[0], PRI_DEFAULT, start_process, fn_copy);
+  tid = thread_create (file_title, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
-
-  // test
-  hex_dump (global_esp, global_esp, PHYS_BASE - global_esp, true);
 
   return tid;
 }
@@ -221,7 +204,7 @@ struct Elf32_Phdr
 #define PF_W 2          /* Writable. */
 #define PF_R 4          /* Readable. */
 
-static bool setup_stack (void **esp);
+static bool setup_stack (void **esp, char **args, int argc);
 static bool validate_segment (const struct Elf32_Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
                           uint32_t read_bytes, uint32_t zero_bytes,
@@ -234,6 +217,14 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 bool
 load (const char *file_name, void (**eip) (void), void **esp) 
 {
+  // save the tokenized arguments from command line
+  char *args[128];
+  // length of arguments (including file name)
+  int argc;
+
+  // used by strtok_r
+  char *delim = " ", *savestr;
+
   struct thread *t = thread_current ();
   struct Elf32_Ehdr ehdr;
   struct file *file = NULL;
@@ -246,6 +237,15 @@ load (const char *file_name, void (**eip) (void), void **esp)
   if (t->pagedir == NULL) 
     goto done;
   process_activate ();
+
+  /* MODIFIED split the file_name into arguments */
+  args[0] = strtok_r(file_name, delim, &savestr);
+
+  i = 1;
+  while( ( args[i] = strtok_r(NULL, delim, &savestr) ) != NULL ) {
+  	i++;
+  }
+  argc = i;
 
   /* Open executable file. */
   file = filesys_open (file_name);
@@ -328,7 +328,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
     }
 
   /* Set up stack. */
-  if (!setup_stack (esp))
+  if (!setup_stack (esp, args, argc))
     goto done;
 
   /* Start address. */
@@ -453,26 +453,27 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 /* Create a minimal stack by mapping a zeroed page at the top of
    user virtual memory. */
 static bool
-setup_stack (void **esp) 
+setup_stack (void **esp, char **args, int argc) 
 {
   uint8_t *kpage;
   bool success = false;
   char *ptr;
-  char * local[128];
+  char *local[128];
   char *argv_ptr;
   int i;
+  int return_addr = 0;
 
   kpage = palloc_get_page (PAL_USER | PAL_ZERO);
   if (kpage != NULL) 
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE - 12;
+        *esp = PHYS_BASE;
       else
         palloc_free_page (kpage);
     }
 
-  if(false)//success)
+  if(success)
   {
     // intialize ptr
     ptr = (char *)*esp;
@@ -481,37 +482,39 @@ setup_stack (void **esp)
     for (i = argc - 1; i >= 0; i--)
     {
       ptr -= strlen(args[i]) + 1; // pointer operation, +1 for '\0'
-      local[i] = (char *)esp - ptr;
-      strlcpy(ptr, args[i], strlen(args[i])); // copy argv[i] to esp, deep copy
+      local[i] = (char *)((char *)esp - ptr);
+      memcpy(ptr, args[i], strlen(args[i]) + 1); // copy argv[i] to esp, deep copy
     }
 
     // word-align, make esp 4 * n
     //ptr -=(char *)((int) ptr % 4 );
+    // TODO make sure it's ROUND_DOWN..	
     ROUND_DOWN((uintptr_t) ptr, 4);
 
     // pointer of arguments
     for(i = argc -1; i >= 0; i--)
     {
       ptr -= sizeof(char *);
-      *ptr = local[i];
+      memcpy(ptr, local[i], sizeof(char *));
     }
   
     // argv and argc
     argv_ptr = ptr;
     ptr -= sizeof(char **);
-    *ptr = argv_ptr;
+    memcpy(ptr, argv_ptr, sizeof(char **));
     ptr -= sizeof(int);
-    *ptr = argc;
+    memcpy(ptr, &argc, sizeof(int));
 
     //return address
-    ptr -= sizeof(void (*)());
-    *ptr = 0;
+    ptr -= sizeof(void (*)); // void (*f)() {}
+    memcpy(ptr, &return_addr, sizeof(void (*)));
 
     // make the esp point to the top of stack
     *esp = (void *)ptr;
   }
 
-  global_esp = *esp;
+  // test
+  hex_dump (*esp, *esp, PHYS_BASE - *esp, true);
 
   return success;
 }
