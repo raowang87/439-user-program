@@ -24,6 +24,8 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
 static char *args[128];
 // length of arguments (including file name)
 static int argc;
+// handler of esp
+void *global_esp;
 
 /* Starts a new thread running a user program loaded from
    FILENAME.  The new thread may be scheduled (and may even exit)
@@ -32,8 +34,7 @@ static int argc;
 tid_t
 process_execute (const char *file_name) 
 {
-  char *fn_copy, *file_name_initial, *delim = " ";
-  char **saveptr;
+  char *fn_copy, *delim = " ", *savestr;
   int i;
   tid_t tid;
 
@@ -44,16 +45,12 @@ process_execute (const char *file_name)
     return TID_ERROR;
   strlcpy (fn_copy, file_name, PGSIZE);
 
-  /* MODIFIED get file name */
-  strlcpy (file_name_initial, file_name, PGSIZE);
-  
   // args[0] contains the file name which need to be executed
-  args[0] = strtok_r(file_name_initial, delim, saveptr);
+  args[0] = strtok_r(file_name, delim, &savestr);
   
   // tokenizing arguments
   i = 1;
-  while( ( args[i] = strtok_r(NULL, delim, saveptr) ) != NULL )
-  {
+  while( ( args[i] = strtok_r(NULL, delim, &savestr) ) != NULL ) {
   	i++;
   }
   argc = i;
@@ -62,6 +59,10 @@ process_execute (const char *file_name)
   tid = thread_create (args[0], PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
+
+  // test
+  hex_dump (global_esp, global_esp, PHYS_BASE - global_esp, true);
+
   return tid;
 }
 
@@ -108,6 +109,11 @@ start_process (void *file_name_)
 int
 process_wait (tid_t child_tid UNUSED) 
 {
+  /*
+   * Check: need to be in child list.
+   * process_exit
+   */
+
   return -1;
 }
 
@@ -451,7 +457,7 @@ setup_stack (void **esp)
 {
   uint8_t *kpage;
   bool success = false;
-  char *ptr = (char *)*esp;
+  char *ptr;
   char * local[128];
   char *argv_ptr;
   int i;
@@ -461,22 +467,27 @@ setup_stack (void **esp)
     {
       success = install_page (((uint8_t *) PHYS_BASE) - PGSIZE, kpage, true);
       if (success)
-        *esp = PHYS_BASE;
+        *esp = PHYS_BASE - 12;
       else
         palloc_free_page (kpage);
     }
-  if(success)
+
+  if(false)//success)
   {
+    // intialize ptr
+    ptr = (char *)*esp;
+
     // strings of arguments
     for (i = argc - 1; i >= 0; i--)
     {
       ptr -= strlen(args[i]) + 1; // pointer operation, +1 for '\0'
-      local[i] = (char *)((char *)esp - ptr);
+      local[i] = (char *)esp - ptr;
       strlcpy(ptr, args[i], strlen(args[i])); // copy argv[i] to esp, deep copy
     }
 
     // word-align, make esp 4 * n
-    ptr -=(char *)((int) ptr % 4 );
+    //ptr -=(char *)((int) ptr % 4 );
+    ROUND_DOWN((uintptr_t) ptr, 4);
 
     // pointer of arguments
     for(i = argc -1; i >= 0; i--)
@@ -498,8 +509,10 @@ setup_stack (void **esp)
 
     // make the esp point to the top of stack
     *esp = (void *)ptr;
-	
   }
+
+  global_esp = *esp;
+
   return success;
 }
 

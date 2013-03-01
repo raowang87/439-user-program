@@ -1,5 +1,5 @@
 Copying tests/userprog/args-none to scratch partition...
-qemu -hda /tmp/jTj8xusg6h.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/CTJd_iXQYJ.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading........
 Kernel command line: -q -f extract run args-none
@@ -19,14 +19,14 @@ Extracting ustar archive from scratch device into file system...
 Putting 'args-none' into the file system...
 Erasing ustar archive...
 Executing 'args-none':
-Page fault at 0xffffffff: not present error writing page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0027ab4
- cr2=ffffffff error=00000002
- eax=00000061 ebx=ffffffff ecx=00000009 edx=00000000
- esi=c0007d50 edi=00000009 esp=c0032a04 ebp=c000ef08
- cs=0008 ds=0010 es=0010 ss=f1a5
+00000000  Page fault at 0: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0026eb2
+ cr2=00000000 error=00000000
+ eax=00000020 ebx=00000000 ecx=0000060e edx=00000000
+ esi=00000000 edi=00000000 esp=c003000f ebp=c000ef28
+ cs=0008 ds=0010 es=0010 ss=0000
 Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc00285a2 0xc002b758 0xc002b800 0xc00219ee 0xc0021b1f 0xc0027ab4 0xc0027c52 0xc002a58a 0xc002027d 0xc0020944.
+Call stack: 0xc00285a2 0xc002b648 0xc002b6f0 0xc00219ee 0xc0021b1f 0xc0026eb2 0xc002a61d 0xc002027d 0xc0020944.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
@@ -34,7 +34,7 @@ Timer: 266 ticks
 Thread: 0 idle ticks, 266 kernel ticks, 0 user ticks
 hda2 (filesys): 26 reads, 204 writes
 hda3 (scratch): 99 reads, 2 writes
-Console: 1481 characters output
+Console: 1471 characters output
 Keyboard: 0 keys pressed
 Exception: 1 page faults
 Powering off...
