@@ -96,6 +96,8 @@ process_wait (tid_t child_tid UNUSED)
    * Check: need to be in child list.
    * process_exit
    */
+  
+  while (1);
 
   return -1;
 }
@@ -248,7 +250,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
   argc = i;
 
   /* Open executable file. */
-  file = filesys_open (file_name);
+  file = filesys_open (args[0]);
   if (file == NULL) 
     {
       printf ("load: %s: open failed\n", file_name);
@@ -482,26 +484,28 @@ setup_stack (void **esp, char **args, int argc)
     for (i = argc - 1; i >= 0; i--)
     {
       ptr -= strlen(args[i]) + 1; // pointer operation, +1 for '\0'
-      local[i] = (char *)((char *)esp - ptr);
+      local[i] = ptr;
       memcpy(ptr, args[i], strlen(args[i]) + 1); // copy argv[i] to esp, deep copy
     }
 
     // word-align, make esp 4 * n
-    //ptr -=(char *)((int) ptr % 4 );
-    // TODO make sure it's ROUND_DOWN..	
-    ROUND_DOWN((uintptr_t) ptr, 4);
+    ptr = ROUND_DOWN((uintptr_t) ptr, 4);
+
+    // add argv[argc]
+    ptr -= sizeof(int);
+    memcpy(ptr, &return_addr, sizeof(int));
 
     // pointer of arguments
     for(i = argc -1; i >= 0; i--)
     {
       ptr -= sizeof(char *);
-      memcpy(ptr, local[i], sizeof(char *));
+      memcpy(ptr, &local[i], sizeof(char *));
     }
   
     // argv and argc
     argv_ptr = ptr;
     ptr -= sizeof(char **);
-    memcpy(ptr, argv_ptr, sizeof(char **));
+    memcpy(ptr, &argv_ptr, sizeof(char **));
     ptr -= sizeof(int);
     memcpy(ptr, &argc, sizeof(int));
 

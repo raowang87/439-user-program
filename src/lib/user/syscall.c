@@ -1,5 +1,7 @@
 #include <syscall.h>
 #include "../syscall-nr.h"
+#include <console.h>
+#include "../kernel/console.h"
 
 /* Invokes syscall NUMBER, passing no arguments, and returns the
    return value as an `int'. */
@@ -120,6 +122,9 @@ read (int fd, void *buffer, unsigned size)
 int
 write (int fd, const void *buffer, unsigned size)
 {
+//  if (fd == 1){
+//    putbuf(buffer, (size_t)size);
+//  }
   return syscall3 (SYS_WRITE, fd, buffer, size);
 }
 
