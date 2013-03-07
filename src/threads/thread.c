@@ -206,6 +206,9 @@ thread_create (const char *name, int priority,
 
   intr_set_level (old_level);
 
+  //add this thread to current thread's children list
+  list_push_back ( &thread_current()->child_list, &t->child_elem );
+
   /* Add to run queue. */
   thread_unblock (t);
 
@@ -290,16 +293,29 @@ thread_exit (void)
 {
   ASSERT (!intr_context ());
 
+  /* MODIFIED wait for its children to terminate */
+  process_wait( -1 );
+  printf("%s: exit(%d)\n", thread_current() ->name, thread_current() ->return_status );
+
 #ifdef USERPROG
   process_exit ();
 #endif
-
+  
   /* Remove thread from all threads list, set our status to dying,
      and schedule another process.  That process will destroy us
      when it calls thread_schedule_tail(). */
   intr_disable ();
   list_remove (&thread_current()->allelem);
+
+  sema_up(&thread_current ()->sema);
+
+  if (strcmp(thread_current()->name, "main") != 0)
+  {
+    // remove threads as a child other than "main"
+    list_remove (&thread_current ()->child_elem);
+  }
   thread_current ()->status = THREAD_DYING;
+
   schedule ();
   NOT_REACHED ();
 }
@@ -469,6 +485,10 @@ init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
+  
+  // MODIFIED
+  sema_init(&t->sema, 1);
+  list_init(&t->child_list);
   list_push_back (&all_list, &t->allelem);
 }
 
@@ -580,6 +600,27 @@ allocate_tid (void)
   lock_release (&tid_lock);
 
   return tid;
+}
+
+/* MODIFIED.
+   Return the pointer to the thread whose thread id is tid
+   Return NULL if not found. */
+struct thread* get_thread (tid_t tid)
+{
+  struct list_elem *elem = list_head(&all_list);
+  struct thread *t;
+
+  while ((elem = list_next(elem)) != list_tail(&all_list))
+  {
+    t = list_entry(elem, struct thread, allelem);
+
+    if (t->tid == tid)
+    {
+      return t;
+    }
+  }
+
+  return NULL;
 }
 
 /* Offset of `stack' member within `struct thread'.

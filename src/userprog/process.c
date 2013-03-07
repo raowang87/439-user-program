@@ -96,9 +96,32 @@ process_wait (tid_t child_tid UNUSED)
    * Check: need to be in child list.
    * process_exit
    */
-  
-  while (1);
+  struct thread *t = thread_current(), *child_t;
+  struct list_elem *elem = list_head(&t->child_list); // head of list (dummy node)
 
+  while ( (elem = list_next(elem)) != list_tail(&t->child_list))
+  {
+    // next node is valid
+    child_t = list_entry(elem, struct thread, child_elem);
+
+    if (child_tid == -1)
+    {
+      sema_down(&child_t->sema);
+    }
+    else if (child_t->tid == child_tid)
+    {
+      // wait for that child
+      if (child_t->sema.value > 0)
+      {
+        sema_down(&child_t->sema);
+        return child_t->return_status; // FIXME whether thread still in memory
+      }
+
+      break;
+    }
+  }
+
+  /* return -1 when no such child or already waiting */
   return -1;
 }
 
@@ -516,9 +539,6 @@ setup_stack (void **esp, char **args, int argc)
     // make the esp point to the top of stack
     *esp = (void *)ptr;
   }
-
-  // test
-  hex_dump (*esp, *esp, PHYS_BASE - *esp, true);
 
   return success;
 }

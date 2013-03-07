@@ -4,6 +4,7 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include "synch.h"
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -100,8 +101,14 @@ struct thread
 
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
+
     /* MODIFIED:  status returned by exit() */
     int return_status;
+    struct list child_list;
+    struct list_elem child_elem;
+
+    /* 0 if its parent is waiting for it. 1 otherwise */
+    struct semaphore sema;
   };
 
 /* If false (default), use round-robin scheduler.
@@ -139,5 +146,7 @@ int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+
+struct thread* get_thread (tid_t);
 
 #endif /* threads/thread.h */
