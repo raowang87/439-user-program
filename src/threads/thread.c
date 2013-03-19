@@ -293,8 +293,7 @@ thread_exit (void)
 {
   ASSERT (!intr_context ());
 
-  /* MODIFIED wait for its children to terminate */
-  process_wait( -1 );
+  /* MODIFIED print out exit info */
   printf("%s: exit(%d)\n", thread_current() ->name, thread_current() ->return_status );
 
 #ifdef USERPROG
@@ -307,13 +306,8 @@ thread_exit (void)
   intr_disable ();
   list_remove (&thread_current()->allelem);
 
-  sema_up(&thread_current ()->sema);
+  sema_up(&thread_current ()->child_sema);
 
-  if (strcmp(thread_current()->name, "main") != 0)
-  {
-    // remove threads as a child other than "main"
-    list_remove (&thread_current ()->child_elem);
-  }
   thread_current ()->status = THREAD_DYING;
 
   schedule ();
@@ -487,9 +481,16 @@ init_thread (struct thread *t, const char *name, int priority)
   t->magic = THREAD_MAGIC;
   
   // MODIFIED
-  sema_init(&t->sema, 1);
+  // -1 by default. If exited normally, it'll be assigned to other value.
+  t->return_status = -1;
+
+  // when a thread tries to wait for it, it will be blocked.
+  sema_init(&t->child_sema, 0);
   list_init(&t->child_list);
   list_push_back (&all_list, &t->allelem);
+
+  // wait for the result of execing a child
+  sema_init(&t->exec_sema, 0);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and

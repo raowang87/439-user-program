@@ -1,14 +1,14 @@
 Copying tests/userprog/sc-boundary to scratch partition...
-qemu -hda /tmp/SzbMaOpovV.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/l6ia2OeEpB.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
-Loading........
+Loading.........
 Kernel command line: -q -f extract run sc-boundary
 Pintos booting with 4,096 kB RAM...
 383 pages available in kernel pool.
 383 pages available in user pool.
-Calibrating timer...  215,859,200 loops/s.
+Calibrating timer...  209,510,400 loops/s.
 hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
-hda1: 139 sectors (69 kB), Pintos OS kernel (20)
+hda1: 147 sectors (73 kB), Pintos OS kernel (20)
 hda2: 4,096 sectors (2 MB), Pintos file system (21)
 hda3: 103 sectors (51 kB), Pintos scratch (22)
 filesys: using hda2
@@ -19,22 +19,14 @@ Extracting ustar archive from scratch device into file system...
 Putting 'sc-boundary' into the file system...
 Erasing ustar archive...
 Executing 'sc-boundary':
-Page fault at 0xffffffff: not present error writing page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0027ab4
- cr2=ffffffff error=00000002
- eax=00000073 ebx=ffffffff ecx=0000000b edx=00000000
- esi=c0007d50 edi=0000000b esp=c0032a04 ebp=c000ef08
- cs=0008 ds=0010 es=0010 ss=f1a5
-Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc00285a2 0xc002b758 0xc002b800 0xc00219ee 0xc0021b1f 0xc0027ab4 0xc0027c52 0xc002a58a 0xc002027d 0xc0020944.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 271 ticks
-Thread: 0 idle ticks, 271 kernel ticks, 0 user ticks
-hda2 (filesys): 26 reads, 210 writes
+(sc-boundary) begin
+sc-boundary: exit(42)
+Execution of 'sc-boundary' complete.
+Timer: 264 ticks
+Thread: 0 idle ticks, 264 kernel ticks, 0 user ticks
+hda2 (filesys): 63 reads, 210 writes
 hda3 (scratch): 102 reads, 2 writes
-Console: 1488 characters output
+Console: 884 characters output
 Keyboard: 0 keys pressed
-Exception: 1 page faults
+Exception: 0 page faults
 Powering off...

@@ -1,0 +1,41 @@
+Copying tests/userprog/exec-bad-ptr to scratch partition...
+qemu -hda /tmp/JIONNJVs5V.dsk -m 4 -net none -nographic -monitor null
+PiLo hda1
+Loading.........
+Kernel command line: -q -f extract run exec-bad-ptr
+Pintos booting with 4,096 kB RAM...
+383 pages available in kernel pool.
+383 pages available in user pool.
+Calibrating timer...  209,510,400 loops/s.
+hda: 5,040 sectors (2 MB), model "QM00001", serial "QEMU HARDDISK"
+hda1: 147 sectors (73 kB), Pintos OS kernel (20)
+hda2: 4,096 sectors (2 MB), Pintos file system (21)
+hda3: 100 sectors (50 kB), Pintos scratch (22)
+filesys: using hda2
+scratch: using hda3
+Formatting file system...done.
+Boot complete.
+Extracting ustar archive from scratch device into file system...
+Putting 'exec-bad-ptr' into the file system...
+Erasing ustar archive...
+Executing 'exec-bad-ptr':
+(exec-bad-ptr) begin
+Page fault at 0x20101234: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0027d99
+ cr2=20101234 error=00000000
+ eax=00000000 ebx=c0109000 ecx=ffffffff edx=20101234
+ esi=c0109000 edi=20101234 esp=0804bc35 ebp=c010af14
+ cs=0008 ds=0010 es=0010 ss=bc20
+Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0xc0028712 0xc002b9a8 0xc002ba50 0xc0021afe 0xc0021c2f 0xc0027d99 0xc002a73b 0xc002bbda 0xc0021afe 0xc0021c2f 0x804a142 0x80480b2 0x80480ec 0x8048740.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 234 ticks
+Thread: 0 idle ticks, 233 kernel ticks, 1 user ticks
+hda2 (filesys): 61 reads, 204 writes
+hda3 (scratch): 99 reads, 2 writes
+Console: 1551 characters output
+Keyboard: 0 keys pressed
+Exception: 1 page faults
+Powering off...

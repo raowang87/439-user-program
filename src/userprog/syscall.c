@@ -5,7 +5,12 @@
 #include "threads/thread.h"
 #include "threads/vaddr.h"
 #include "userprog/pagedir.h"
+#include "process.h"
+#include <string.h>
+#include "devices/shutdown.h"
 
+int get_arg(struct intr_frame * f, int index);
+int valid_arg(struct intr_frame * f, int index);
 static void syscall_handler (struct intr_frame *);
 
 void
@@ -18,10 +23,8 @@ static void
 syscall_handler (struct intr_frame *f UNUSED) 
 {
   int syscall_num;
-  int syscall_arg;
 
-
-  /* check f->frame_pointer validation */
+  /* check f->frame_pointer validity */
   struct thread *t = thread_current();
 
   if( f->frame_pointer != NULL && is_user_vaddr( f->frame_pointer ) && valid_arg(f, 0) )
@@ -55,13 +58,13 @@ syscall_handler (struct intr_frame *f UNUSED)
 	{
 	  // if arg is invalid, pid = -1
 	  f->eax = -1;
+          thread_exit();
 	}
 	else
 	{
           // eax keeps the return value
           f->eax = process_execute((char *)get_arg(f, 1));
 
-	  // put this thread to the children list of the current thread
 	}
 	break;
       
@@ -70,6 +73,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	{
 	  // if arg is invalid, pid = -1
 	  f->eax = -1;
+          thread_exit();  
 	}
 	else
 	{
@@ -80,14 +84,15 @@ syscall_handler (struct intr_frame *f UNUSED)
         if (! valid_arg(f, 2) || ! valid_arg(f, 1) || ! valid_arg(f, 3))
 	{
 	  f->eax = -1;
+          thread_exit();  
 	}else
 	{
 	  putbuf(get_arg(f, 2), get_arg(f, 3));
 	}
 	break;
       default:
-	printf("UNKOWN SYSTEM CALL NUMBER: %d\n", syscall_num);
-	thread_exit();
+        // TODO
+	;
     }
   }
   else
@@ -96,7 +101,10 @@ syscall_handler (struct intr_frame *f UNUSED)
   }
 }
 
-/* check validation of ith argument */
+/*
+Check validity of ith argument.
+They may exit after calling this.
+*/
 int
 valid_arg(struct intr_frame * f, int index)
 {

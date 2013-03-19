@@ -108,7 +108,12 @@ struct thread
     struct list_elem child_elem;
 
     /* 0 if its parent is waiting for it. 1 otherwise */
-    struct semaphore sema;
+    struct semaphore child_sema;
+    bool isWaited; // true if waited by its parent
+
+    /* To check whether exec successful */
+    struct semaphore exec_sema;
+    bool success;
   };
 
 /* If false (default), use round-robin scheduler.

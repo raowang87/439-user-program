@@ -132,8 +132,6 @@ main (void)
   /* Run actions specified on kernel command line. */
   run_actions (argv);
 
-  /* MODIFIED wait for all the threads terminate */
-  process_wait( -1 );
 
   /* Finish up. */
   shutdown ();

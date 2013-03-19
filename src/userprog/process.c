@@ -29,6 +29,7 @@ tid_t
 process_execute (const char *file_name) 
 {
   char *fn_copy, *file_title, *delim = " ", *savestr;
+  struct thread *child_t;
   tid_t tid;
 
   /* Make a copy of FILE_NAME.
@@ -45,6 +46,15 @@ process_execute (const char *file_name)
   tid = thread_create (file_title, PRI_DEFAULT, start_process, fn_copy);
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy); 
+
+  /* block until the result of exec */
+  child_t = get_thread(tid);
+  sema_down(&child_t->exec_sema);
+  if (! child_t->success)
+  {
+    // fail to load
+    return -1;
+  }
 
   return tid;
 }
@@ -65,9 +75,12 @@ start_process (void *file_name_)
   if_.eflags = FLAG_IF | FLAG_MBS;
   success = load (file_name, &if_.eip, &if_.esp);
 
+  thread_current()->success = success;
+  sema_up(&thread_current()->exec_sema);
+
   /* If load failed, quit. */
   palloc_free_page (file_name);
-  if (!success) 
+  if (!success)
     thread_exit ();
 
   /* Start the user process by simulating a return from an
@@ -104,16 +117,15 @@ process_wait (tid_t child_tid UNUSED)
     // next node is valid
     child_t = list_entry(elem, struct thread, child_elem);
 
-    if (child_tid == -1)
-    {
-      sema_down(&child_t->sema);
-    }
-    else if (child_t->tid == child_tid)
+    if (child_t->tid == child_tid)
     {
       // wait for that child
-      if (child_t->sema.value > 0)
+      if (! child_t->isWaited)
       {
-        sema_down(&child_t->sema);
+        child_t->isWaited = true;
+
+        sema_down(&child_t->child_sema); // parent (current thread) should be blocked here
+
         return child_t->return_status; // FIXME whether thread still in memory
       }
 
