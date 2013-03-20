@@ -17,3 +17,17 @@ Formatting file system...done.
 Boot complete.
 Extracting ustar archive from scratch device into file system...
 Putting 'write-bad-fd' into the file system...
+Erasing ustar archive...
+Executing 'write-bad-fd':
+(write-bad-fd) begin
+{{{{{{{(write-bad-fd) end
+write-bad-fd: exit(0)
+Execution of 'write-bad-fd' complete.
+Timer: 260 ticks
+Thread: 0 idle ticks, 259 kernel ticks, 1 user ticks
+hda2 (filesys): 63 reads, 206 writes
+hda3 (scratch): 100 reads, 2 writes
+Console: 915 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

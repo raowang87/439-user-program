@@ -1,6 +1,6 @@
 Copying tests/userprog/exec-arg to scratch partition...
 Copying tests/userprog/child-args to scratch partition...
-qemu -hda /tmp/CVuLMLLwOD.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/ADoNRVRlwc.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run exec-arg
@@ -23,18 +23,18 @@ Erasing ustar archive...
 Executing 'exec-arg':
 (exec-arg) begin
 Page fault at 0x804a738: rights violation error writing page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0027770
+Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0027730
  cr2=0804a738 error=00000003
- eax=c00305b1 ebx=0804a738 ecx=00000020 edx=00000020
- esi=0804a72e edi=00000020 esp=c00305b1 ebp=c010af14
+ eax=c0030571 ebx=0804a738 ecx=00000020 edx=00000020
+ esi=0804a72e edi=00000020 esp=c0030571 ebp=c010af14
  cs=0008 ds=0010 es=0010 ss=0020
 Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc0028712 0xc002b9a8 0xc002ba50 0xc0021afe 0xc0021c2f 0xc0027770 0xc002a755 0xc002bbda 0xc0021afe 0xc0021c2f 0x804a142 0x80480b2 0x80480f4 0x8048740.
+Call stack: 0xc00286d2 0xc002b968 0xc002ba10 0xc0021abe 0xc0021bef 0xc0027730 0xc002a715 0xc002bb9a 0xc0021abe 0xc0021bef 0x804a142 0x80480b2 0x80480f4 0x8048740.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.
-Timer: 405 ticks
-Thread: 0 idle ticks, 404 kernel ticks, 1 user ticks
+Timer: 399 ticks
+Thread: 0 idle ticks, 398 kernel ticks, 1 user ticks
 hda2 (filesys): 87 reads, 402 writes
 hda3 (scratch): 197 reads, 2 writes
 Console: 1585 characters output
