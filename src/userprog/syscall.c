@@ -80,6 +80,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	  f->eax = process_wait((tid_t)get_arg(f, 1));
 	}
 	break;
+
       case SYS_WRITE:
         if (! valid_arg(f, 2) || ! valid_arg(f, 1) || ! valid_arg(f, 3))
 	{
@@ -90,6 +91,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	  putbuf(get_arg(f, 2), get_arg(f, 3));
 	}
 	break;
+
       default:
         // TODO
 	;

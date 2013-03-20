@@ -307,6 +307,13 @@ thread_exit (void)
   list_remove (&thread_current()->allelem);
 
   sema_up(&thread_current ()->child_sema);
+  
+  /*
+  if (strcmp(thread_current()->name, "main") != 0)
+  {
+    list_remove (&thread_current ()->child_elem);
+  }
+  */
 
   thread_current ()->status = THREAD_DYING;
 
@@ -562,7 +569,8 @@ thread_schedule_tail (struct thread *prev)
   if (prev != NULL && prev->status == THREAD_DYING && prev != initial_thread) 
     {
       ASSERT (prev != cur);
-      palloc_free_page (prev);
+      // FIXME never destruct threads..
+      //palloc_free_page (prev);
     }
 }
 
