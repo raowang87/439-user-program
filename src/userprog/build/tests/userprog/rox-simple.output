@@ -1,5 +1,5 @@
 Copying tests/userprog/rox-simple to scratch partition...
-qemu -hda /tmp/Q40O413tCu.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/d4fhaG7UQ9.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run rox-simple
@@ -24,8 +24,8 @@ Executing 'rox-simple':
 (rox-simple) open "rox-simple": FAILED
 rox-simple: exit(1)
 Execution of 'rox-simple' complete.
-Timer: 234 ticks
-Thread: 0 idle ticks, 233 kernel ticks, 1 user ticks
+Timer: 238 ticks
+Thread: 0 idle ticks, 237 kernel ticks, 1 user ticks
 hda2 (filesys): 63 reads, 206 writes
 hda3 (scratch): 100 reads, 2 writes
 Console: 947 characters output

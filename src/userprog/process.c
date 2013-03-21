@@ -28,24 +28,29 @@ static bool load (const char *cmdline, void (**eip) (void), void **esp);
 tid_t
 process_execute (const char *file_name) 
 {
-  char *fn_copy, *file_title, *delim = " ", *savestr;
+  char *fn_copy_1, *fn_copy_2, *file_title, *delim = " ", *savestr;
   struct thread *child_t;
   tid_t tid;
 
   /* Make a copy of FILE_NAME.
      Otherwise there's a race between the caller and load(). */
-  fn_copy = palloc_get_page (0);
-  if (fn_copy == NULL)
+  fn_copy_1 = palloc_get_page (0);
+  fn_copy_2 = palloc_get_page (0);
+  file_title = palloc_get_page (0);
+
+  if (fn_copy_1 == NULL || fn_copy_2 == NULL || file_title == NULL)
     return TID_ERROR;
-  strlcpy (fn_copy, file_name, PGSIZE);
+  strlcpy (fn_copy_1, file_name, PGSIZE);
 
   // args[0] contains the file name which need to be executed
-  file_title = strtok_r(file_name, delim, &savestr);
+  file_title = strtok_r(fn_copy_1, delim, &savestr);
+
+  strlcpy (fn_copy_2, file_name, PGSIZE);
   
   /* Create a new thread to execute FILE_NAME. */
-  tid = thread_create (file_title, PRI_DEFAULT, start_process, fn_copy);
+  tid = thread_create (file_title, PRI_DEFAULT, start_process, fn_copy_2);
   if (tid == TID_ERROR)
-    palloc_free_page (fn_copy); 
+    palloc_free_page (fn_copy_2); 
 
   /* block until the result of exec */
   child_t = get_thread(tid);
@@ -67,7 +72,6 @@ start_process (void *file_name_)
   char *file_name = file_name_;
   struct intr_frame if_;
   bool success;
-
   /* Initialize interrupt frame and load executable. */
   memset (&if_, 0, sizeof if_);
   if_.gs = if_.fs = if_.es = if_.ds = if_.ss = SEL_UDSEG;
@@ -275,6 +279,7 @@ load (const char *file_name, void (**eip) (void), void **esp)
     goto done;
   process_activate ();
 
+
   /* MODIFIED split the file_name into arguments */
   args[0] = strtok_r(file_name, delim, &savestr);
 
@@ -283,7 +288,6 @@ load (const char *file_name, void (**eip) (void), void **esp)
   	i++;
   }
   argc = i;
-
   /* Open executable file. */
   file = filesys_open (args[0]);
   if (file == NULL) 

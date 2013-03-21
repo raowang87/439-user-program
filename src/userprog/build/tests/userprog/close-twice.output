@@ -1,6 +1,6 @@
 Copying tests/userprog/close-twice to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
-qemu -hda /tmp/6rRyP2Z5LW.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/fXgJ8fdgab.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run close-twice
@@ -27,7 +27,7 @@ Executing 'close-twice':
 close-twice: exit(1)
 Execution of 'close-twice' complete.
 Timer: 266 ticks
-Thread: 0 idle ticks, 265 kernel ticks, 1 user ticks
+Thread: 0 idle ticks, 267 kernel ticks, 0 user ticks
 hda2 (filesys): 88 reads, 212 writes
 hda3 (scratch): 102 reads, 2 writes
 Console: 1000 characters output

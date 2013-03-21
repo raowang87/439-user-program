@@ -1,5 +1,5 @@
 Copying tests/userprog/close-stdout to scratch partition...
-qemu -hda /tmp/cDl_qZk2pZ.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/NGRgWHUnAV.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run close-stdout

@@ -1,5 +1,5 @@
 Copying tests/userprog/bad-jump2 to scratch partition...
-qemu -hda /tmp/Z6EtaMS01W.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/BsGeCndRP7.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run bad-jump2
@@ -29,8 +29,8 @@ Interrupt 0x0e (#PF Page-Fault Exception) at eip=0xc0000000
  cs=001b ds=0023 es=0023 ss=0023
 bad-jump2: exit(-1)
 Execution of 'bad-jump2' complete.
-Timer: 231 ticks
-Thread: 0 idle ticks, 230 kernel ticks, 1 user ticks
+Timer: 236 ticks
+Thread: 0 idle ticks, 234 kernel ticks, 2 user ticks
 hda2 (filesys): 63 reads, 204 writes
 hda3 (scratch): 99 reads, 2 writes
 Console: 1245 characters output

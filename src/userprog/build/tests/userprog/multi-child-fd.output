@@ -1,7 +1,7 @@
 Copying tests/userprog/multi-child-fd to scratch partition...
 Copying ../../tests/userprog/sample.txt to scratch partition...
 Copying tests/userprog/child-close to scratch partition...
-qemu -hda /tmp/kbEYms8gCo.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/DoZvgV4nAS.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run multi-child-fd
@@ -28,8 +28,8 @@ Executing 'multi-child-fd':
 (multi-child-fd) open "sample.txt": FAILED
 multi-child-fd: exit(1)
 Execution of 'multi-child-fd' complete.
-Timer: 429 ticks
-Thread: 0 idle ticks, 428 kernel ticks, 1 user ticks
+Timer: 435 ticks
+Thread: 0 idle ticks, 434 kernel ticks, 1 user ticks
 hda2 (filesys): 115 reads, 434 writes
 hda3 (scratch): 212 reads, 2 writes
 Console: 1072 characters output

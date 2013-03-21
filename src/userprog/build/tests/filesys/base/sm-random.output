@@ -1,5 +1,5 @@
 Copying tests/filesys/base/sm-random to scratch partition...
-qemu -hda /tmp/3rC4Ddz1TB.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/EqJB862dZe.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run sm-random

@@ -1,5 +1,5 @@
 Copying tests/userprog/create-empty to scratch partition...
-qemu -hda /tmp/sHGI10dAjT.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/GQ3ePeCOhB.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run create-empty

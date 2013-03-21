@@ -1,5 +1,5 @@
 Copying tests/userprog/multi-recurse to scratch partition...
-qemu -hda /tmp/A4hZsvz2tC.dsk -m 4 -net none -nographic -monitor null
+qemu -hda /tmp/Dv5Ye89rEW.dsk -m 4 -net none -nographic -monitor null
 PiLo hda1
 Loading.........
 Kernel command line: -q -f extract run 'multi-recurse 15'
@@ -52,42 +52,42 @@ Executing 'multi-recurse 15':
 (multi-recurse) begin 0
 (multi-recurse) end 0
 multi-recurse: exit(0)
-(multi-recurse) wait(exec("multi-recurse")) returned -1: FAILED
+(multi-recurse) end 1
 multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-(multi-recurse) wait(exec("multi-recurse")) returned -858993460: FAILED
-multi-recurse: exit(1)
-Execution of 'multi-recurse' complete.
-Timer: 265 ticks
-Thread: 0 idle ticks, 259 kernel ticks, 6 user ticks
+(multi-recurse) end 2
+multi-recurse: exit(2)
+(multi-recurse) end 3
+multi-recurse: exit(3)
+(multi-recurse) end 4
+multi-recurse: exit(4)
+(multi-recurse) end 5
+multi-recurse: exit(5)
+(multi-recurse) end 6
+multi-recurse: exit(6)
+(multi-recurse) end 7
+multi-recurse: exit(7)
+(multi-recurse) end 8
+multi-recurse: exit(8)
+(multi-recurse) end 9
+multi-recurse: exit(9)
+(multi-recurse) end 10
+multi-recurse: exit(10)
+(multi-recurse) end 11
+multi-recurse: exit(11)
+(multi-recurse) end 12
+multi-recurse: exit(12)
+(multi-recurse) end 13
+multi-recurse: exit(13)
+(multi-recurse) end 14
+multi-recurse: exit(14)
+(multi-recurse) end 15
+multi-recurse: exit(15)
+Execution of 'multi-recurse 15' complete.
+Timer: 268 ticks
+Thread: 0 idle ticks, 263 kernel ticks, 5 user ticks
 hda2 (filesys): 554 reads, 228 writes
 hda3 (scratch): 111 reads, 2 writes
-Console: 3316 characters output
+Console: 2589 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

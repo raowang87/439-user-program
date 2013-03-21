@@ -1,16 +1,16 @@
 FAIL
 Kernel panic in run: PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0xc00286d2 0xc002b968 0xc002ba10 0xc0021abe 0xc0021bef 0xc0027d59 0xc002a6fb 0xc002bb9a 0xc0021abe 0xc0021bef 0x804a142 0x80480b2 0x80480ec 0x8048740
+Call stack: 0xc00286d2 0xc002b9b8 0xc002ba60 0xc0021abe 0xc0021bef 0xc0027d59 0xc002a72d 0xc002bbea 0xc0021abe 0xc0021bef 0x804a142 0x80480b2 0x80480ec 0x8048740
 Translation of call stack:
 In kernel.o:
 0xc00286d2: debug_panic (.../../lib/kernel/debug.c:38)
-0xc002b968: kill (.../userprog/exception.c:105)
-0xc002ba10: page_fault (.../userprog/exception.c:160)
+0xc002b9b8: kill (.../userprog/exception.c:105)
+0xc002ba60: page_fault (.../userprog/exception.c:160)
 0xc0021abe: intr_handler (..../threads/interrupt.c:367)
 0xc0021bef: intr_entry (threads/intr-stubs.S:38)
 0xc0027d59: strlcpy (...ld/../../lib/string.c:333)
-0xc002a6fb: process_execute (.../../userprog/process.c:43)
-0xc002bb9a: syscall_handler (.../../userprog/syscall.c:66)
+0xc002a72d: process_execute (.../../userprog/process.c:46)
+0xc002bbea: syscall_handler (.../../userprog/syscall.c:66)
 0xc0021abe: intr_handler (..../threads/interrupt.c:367)
 0xc0021bef: intr_entry (threads/intr-stubs.S:38)
 In tests/userprog/exec-bad-ptr:

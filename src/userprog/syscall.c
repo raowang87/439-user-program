@@ -81,6 +81,24 @@ syscall_handler (struct intr_frame *f UNUSED)
 	}
 	break;
 
+      case SYS_CREATE:
+        if (! valid_arg(f, 1) || ! valid_arg(f, 2))
+	{
+	  // if arg is invalid, pid = -1
+	  f->eax = -1;
+          thread_exit();  
+	}
+        break;
+
+      case SYS_REMOVE:
+        break;
+
+      case SYS_OPEN:
+        break;
+
+      case SYS_FILESIZE:
+        break;
+
       case SYS_WRITE:
         if (! valid_arg(f, 2) || ! valid_arg(f, 1) || ! valid_arg(f, 3))
 	{
