@@ -498,6 +498,9 @@ init_thread (struct thread *t, const char *name, int priority)
 
   // wait for the result of execing a child
   sema_init(&t->exec_sema, 0);
+  // initiate file_list
+  list_init(&t->file_list);
+  t->fd_index = 2;
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and

@@ -27,6 +27,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 
   /* check f->frame_pointer validity */
   struct thread *t = thread_current();
+  struct file_node *f_node;
 
   if( f->frame_pointer != NULL && is_user_vaddr( f->frame_pointer ) && valid_arg(f, 0) )
   {
@@ -83,7 +84,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	break;
 
       case SYS_CREATE:
-        if (! valid_arg(f, 1) || ! valid_arg(f, 2))
+        if (! valid_arg(f, 1) || ! valid_arg(f, 2) || ! valid_ptr(get_arg(f, 1)) || ! valid_ptr(get_arg(f, 2)))
 	{
 	  // if arg is invalid, killed
 	  f->eax = -1;
@@ -109,9 +110,42 @@ syscall_handler (struct intr_frame *f UNUSED)
         break;
 
       case SYS_OPEN:
+        if (! valid_arg(f, 1) || ! valid_ptr(get_arg(f, 1)))
+	{
+	  // if arg is invalid, killed
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  f_node = palloc_get_page (0);
+	  ASSERT ( f_node != NULL );
+	    
+	  if ( (f_node->file = filesys_open( get_arg(f, 1)) ) == NULL)
+	  {
+	    f->eax = -1;
+	  }
+	  else
+	  {
+	    f_node->fd = t->fd_index;
+	    t->fd_index++;
+	    list_push_front( &t->file_list, &f_node->file_elem );
+	    f->eax = f_node->fd;
+	  }
+	}
         break;
 
       case SYS_FILESIZE:
+        if (! valid_arg(f, 1))
+	{
+	  // if arg is invalid, killed
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  get_arg(f, 1);
+	}
         break;
 
       case SYS_WRITE:

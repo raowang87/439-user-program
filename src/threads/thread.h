@@ -91,6 +91,10 @@ struct thread
     int priority;                       /* Priority. */
     struct list_elem allelem;           /* List element for all threads list. */
 
+    int fd_index;
+    // hold the open files
+    struct list file_list;
+
     /* Shared between thread.c and synch.c. */
     struct list_elem elem;              /* List element. */
 
@@ -114,6 +118,13 @@ struct thread
     /* To check whether exec successful */
     struct semaphore exec_sema;
     bool success;
+  };
+
+/*file_node contains the information about a file*/
+struct file_node{
+  int fd;
+  struct file *file;
+  struct list_elem file_elem; 
   };
 
 /* If false (default), use round-robin scheduler.
