@@ -10,6 +10,7 @@
 #include "devices/shutdown.h"
 
 int get_arg(struct intr_frame * f, int index);
+int valid_ptr(int *ptr);
 int valid_arg(struct intr_frame * f, int index);
 static void syscall_handler (struct intr_frame *);
 
@@ -54,7 +55,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	break;
 
       case SYS_EXEC:
-        if (! valid_arg(f, 1))
+        if (! valid_arg(f, 1) || ! valid_ptr(get_arg(f, 1)))
 	{
 	  // if arg is invalid, pid = -1
 	  f->eax = -1;
@@ -84,9 +85,13 @@ syscall_handler (struct intr_frame *f UNUSED)
       case SYS_CREATE:
         if (! valid_arg(f, 1) || ! valid_arg(f, 2))
 	{
-	  // if arg is invalid, pid = -1
+	  // if arg is invalid, return false
 	  f->eax = -1;
           thread_exit();  
+	}
+	else
+	{
+	  //get_arg(f, 1)
 	}
         break;
 
@@ -121,6 +126,12 @@ syscall_handler (struct intr_frame *f UNUSED)
   }
 }
 
+int
+valid_ptr(int *ptr)
+{
+  return ptr != NULL && is_user_vaddr( ptr ) && ( pagedir_get_page(thread_current()->pagedir, ptr) != NULL );
+}
+
 /*
 Check validity of ith argument.
 They may exit after calling this.
@@ -129,9 +140,8 @@ int
 valid_arg(struct intr_frame * f, int index)
 {
   int *ptr = (int *)(f->esp) + index; // current point (to stack)
-  struct thread *t = thread_current();
   
-  return ptr != NULL && is_user_vaddr( ptr ) && ( pagedir_get_page(t->pagedir, ptr) != NULL );
+  return valid_ptr(ptr);
 }
 
 /* get the ith argument above esp */
