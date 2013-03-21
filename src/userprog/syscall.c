@@ -85,17 +85,27 @@ syscall_handler (struct intr_frame *f UNUSED)
       case SYS_CREATE:
         if (! valid_arg(f, 1) || ! valid_arg(f, 2))
 	{
-	  // if arg is invalid, return false
+	  // if arg is invalid, killed
 	  f->eax = -1;
           thread_exit();  
 	}
 	else
 	{
-	  //get_arg(f, 1)
+	  f->eax = filesys_create(get_arg(f, 1), get_arg(f, 2));
 	}
         break;
 
       case SYS_REMOVE:
+        if (! valid_arg(f, 1))
+	{
+	  // if arg is invalid, killed
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  f->eax = filesys_remove(get_arg(f, 1));
+	}
         break;
 
       case SYS_OPEN:
