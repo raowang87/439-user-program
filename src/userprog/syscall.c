@@ -203,6 +203,15 @@ syscall_handler (struct intr_frame *f UNUSED)
 	}
 	break;
 
+      case SYS_SEEK:
+        break;
+
+      case SYS_TELL:
+        break;
+
+      case SYS_CLOSE:
+        break;
+
       default:
         // TODO
 	;
