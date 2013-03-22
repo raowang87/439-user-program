@@ -634,6 +634,27 @@ struct thread* get_thread (tid_t tid)
 
   return NULL;
 }
+
+/* MODIFED.
+   return the file node with given fd */
+struct file_node* get_file_node (int fd)
+{
+  struct list_elem *elem = list_head(&thread_current()->file_list);
+  struct file_node *f_node;
+
+  while ((elem = list_next(elem)) != list_tail(&thread_current()->file_list))
+  {
+    f_node = list_entry(elem, struct file_node, file_elem);
+
+    if (f_node->fd == fd)
+    {
+      return f_node;
+    }
+  }
+
+  return NULL;
+}
+
 
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */

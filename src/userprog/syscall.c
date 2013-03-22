@@ -84,7 +84,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	break;
 
       case SYS_CREATE:
-        if (! valid_arg(f, 1) || ! valid_arg(f, 2) || ! valid_ptr(get_arg(f, 1)) || ! valid_ptr(get_arg(f, 2)))
+        if (! valid_arg(f, 1) || ! valid_arg(f, 2) || ! valid_ptr(get_arg(f, 1)))
 	{
 	  // if arg is invalid, killed
 	  f->eax = -1;
@@ -144,18 +144,62 @@ syscall_handler (struct intr_frame *f UNUSED)
 	}
 	else
 	{
-	  get_arg(f, 1);
+	  // get the f_node with given fd
+	  f_node = get_file_node(get_arg(f, 1));
+
+	  ASSERT (f_node != NULL);
+
+	  f->eax = inode_length( file_get_inode(f_node->file) );
 	}
         break;
 
-      case SYS_WRITE:
-        if (! valid_arg(f, 2) || ! valid_arg(f, 1) || ! valid_arg(f, 3))
+      case SYS_READ:
+        if (! valid_arg(f, 1) || ! valid_arg(f, 2) || ! valid_arg(f, 3) || ! valid_ptr(get_arg(f, 2)))
 	{
 	  f->eax = -1;
           thread_exit();  
-	}else
+	}
+	else
 	{
-	  putbuf(get_arg(f, 2), get_arg(f, 3));
+	  int fd = get_arg(f, 1);
+
+	  if (fd == 0)
+	  {
+	    // input_getc();
+	  }
+	  else if (fd >= 2 && fd < t->fd_index)
+	  {
+	    f->eax = file_read(get_file_node(fd)->file, get_arg(f, 2), get_arg(f, 3));
+	  }
+	  else
+	  {
+	    f->eax = -1;
+	  }
+	}
+	break;
+       
+      case SYS_WRITE:
+        if (! valid_arg(f, 1) || ! valid_arg(f, 2) || ! valid_arg(f, 3) || ! valid_ptr(get_arg(f, 2)))
+	{
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  int fd = get_arg(f, 1);
+
+	  if (fd == 1)
+	  {
+	    putbuf(get_arg(f, 2), get_arg(f, 3));
+	  }
+	  else if (fd >= 2 && fd < t->fd_index)
+	  {
+	    f->eax = file_read(get_file_node(fd)->file, get_arg(f, 2), get_arg(f, 3));
+	  }
+	  else
+	  {
+	    f->eax = -1;
+	  }
 	}
 	break;
 
