@@ -118,7 +118,7 @@ syscall_handler (struct intr_frame *f UNUSED)
 	}
 	else
 	{
-	  f_node = palloc_get_page (0);
+	  f_node = calloc(1, sizeof (struct file_node));
 	  ASSERT ( f_node != NULL );
 	    
 	  if ( (f_node->file = filesys_open( get_arg(f, 1)) ) == NULL)

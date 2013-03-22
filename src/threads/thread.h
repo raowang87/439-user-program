@@ -115,9 +115,15 @@ struct thread
     struct semaphore child_sema;
     bool isWaited; // true if waited by its parent
 
+    /* flag to record whether its parent is dead */
+    bool parentDead;
+
     /* To check whether exec successful */
     struct semaphore exec_sema;
     bool success;
+
+    /* Executable file of this thread */
+    struct file *exec_file;
   };
 
 /*file_node contains the information about a file*/

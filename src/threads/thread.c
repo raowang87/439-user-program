@@ -72,7 +72,8 @@ void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
 /* MODIFIED */
 void delete_fd_list ();
-
+void  kill_children();
+void  notify_children();
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
    general and it is possible in this case only because loader.S
@@ -294,12 +295,16 @@ void
 thread_exit (void) 
 {
   ASSERT (!intr_context ());
-
-  /* MODIFIED print out exit info */
+  
+    /* MODIFIED print out exit info */
   printf("%s: exit(%d)\n", thread_current() ->name, thread_current() ->return_status );
+  /* MODIFIED close the executable file */
+  file_close(thread_current()->exec_file);
   /* MODIFIED delete fd list */
   delete_fd_list();
-  
+  notify_children();   
+  kill_children();
+
 #ifdef USERPROG
   process_exit ();
 #endif
@@ -495,6 +500,9 @@ init_thread (struct thread *t, const char *name, int priority)
   // -1 by default. If exited normally, it'll be assigned to other value.
   t->return_status = -1;
 
+  //init the parentDead
+  t->parentDead = false;
+
   // when a thread tries to wait for it, it will be blocked.
   sema_init(&t->child_sema, 0);
   list_init(&t->child_list);
@@ -573,11 +581,10 @@ thread_schedule_tail (struct thread *prev)
      pull out the rug under itself.  (We don't free
      initial_thread because its memory was not obtained via
      palloc().) */
-  if (prev != NULL && prev->status == THREAD_DYING && prev != initial_thread) 
+  if (prev != NULL && prev->status == THREAD_DYING && prev != initial_thread && prev->parentDead) 
     {
       ASSERT (prev != cur);
-      // FIXME never destruct threads..
-      //palloc_free_page (prev);
+      palloc_free_page (prev);
     }
 }
 
@@ -639,6 +646,38 @@ struct thread* get_thread (tid_t tid)
   return NULL;
 }
 
+/* notify the thread's children, parent dies */
+void  notify_children()
+{
+  struct thread *t = thread_current();
+  struct list_elem *elem = list_head(&t->child_list);
+  struct thread *child;
+  while ((elem = list_next(elem)) != list_tail(&t->child_list))
+  {
+    child = list_entry(elem, struct thread, child_elem);
+    child->parentDead = true;
+  }
+}
+
+void  kill_children()
+{
+  struct thread *t = thread_current();
+  struct list_elem *elem = list_head(&t->child_list);
+  struct list_elem *next_elem = list_next(elem);
+  struct thread *child;
+  while ( next_elem != list_tail(&t->child_list))
+  {
+    elem = next_elem;
+    next_elem = list_next(next_elem);
+    child = list_entry(elem, struct thread, child_elem);
+    if(child->status == THREAD_DYING )
+    {
+      list_remove(elem);
+      palloc_free_page(child);
+    }
+  }
+}
+
 /* MODIFED.
    return the file node with given fd */
 struct file_node* get_file_node (int fd)
@@ -667,11 +706,13 @@ delete_fd_list ()
   struct list_elem *elem = list_head(&thread_current()->file_list);
   struct file_node *f_node;
 
-  while ((elem = list_next(elem)) != list_tail(&thread_current()->file_list))
+  while ( !list_empty(&thread_current()->file_list)     )
   {
+    elem = list_pop_front(&thread_current()->file_list);
     f_node = list_entry(elem, struct file_node, file_elem);
 
     file_close( f_node->file );
+    free( f_node );
   }
 
   return NULL;

@@ -52,6 +52,9 @@ process_execute (const char *file_name)
   if (tid == TID_ERROR)
     palloc_free_page (fn_copy_2); 
 
+  /* Free this resource */
+  palloc_free_page (fn_copy_1);
+
   /* block until the result of exec */
   child_t = get_thread(tid);
   sema_down(&child_t->exec_sema);
@@ -130,7 +133,13 @@ process_wait (tid_t child_tid UNUSED)
 
         sema_down(&child_t->child_sema); // parent (current thread) should be blocked here
 
-        return child_t->return_status; // FIXME whether thread still in memory
+        int return_status = child_t->return_status;
+
+	// free child memory and remove from child_list
+	list_remove(&child_t->child_elem);
+	palloc_free_page(child_t);
+
+        return return_status;
       }
 
       break;
@@ -297,8 +306,6 @@ load (const char *file_name, void (**eip) (void), void **esp)
       goto done; 
     }
 
-  file_deny_write(file); //MODIFIED
-
   /* Read and verify executable header. */
   if (file_read (file, &ehdr, sizeof ehdr) != sizeof ehdr
       || memcmp (ehdr.e_ident, "\177ELF\1\1\1", 7)
@@ -379,10 +386,13 @@ load (const char *file_name, void (**eip) (void), void **esp)
   *eip = (void (*) (void)) ehdr.e_entry;
 
   success = true;
-
+  
+  file_deny_write(file); //MODIFIED deny writing to the executable until this thread exits.
+  t->exec_file = file;
  done:
   /* We arrive here whether the load is successful or not. */
-  file_close (file);
+  if (!success)
+    file_close (file);
   return success;
 }
 
