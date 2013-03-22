@@ -204,9 +204,41 @@ syscall_handler (struct intr_frame *f UNUSED)
 	break;
 
       case SYS_SEEK:
+        if (! valid_arg(f, 1) || ! valid_arg(f, 2)  )
+	{
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  int fd = get_arg(f, 1);
+	  if ( fd >= 2 && fd < t->fd_index )
+	  {
+	    f_node = get_file_node(fd);
+	    file_seek( f_node->file , get_arg(f, 2) );
+	  }
+	}
         break;
 
       case SYS_TELL:
+        if (! valid_arg(f, 1))
+	{
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  int fd = get_arg(f, 1);
+	  if ( fd >=2 && fd < t->fd_index )
+	  {
+	    f_node = get_file_node(fd);
+	    f->eax = file_tell( f_node->file ); 
+	  }
+	  else
+	  {
+	    f->eax = -1;
+	  }
+	}
         break;
 
       case SYS_CLOSE:
