@@ -1,4 +1,4 @@
-cscope 15 /v/filer4b/v38q001/menie482/workspace/439-user-programs/src               0000941663
+cscope 15 /v/filer4b/v38q001/menie482/workspace/439-user-programs/src               0000941712
 	@devices/block.c
 
 1 
@@ -64603,11 +64603,23 @@ sucûss
 fže
 );
 
+391 
+t
+->
+exec_fže
+ = 
+fže
+;
+
 392 
 dÚe
 :
 
-394 
+394 ià(!
+sucûss
+)
+
+395 
 	`fže_þo£
  (
 fže
