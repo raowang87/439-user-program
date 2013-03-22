@@ -194,11 +194,11 @@ syscall_handler (struct intr_frame *f UNUSED)
 	  }
 	  else if (fd >= 2 && fd < t->fd_index)
 	  {
-	    f->eax = file_read(get_file_node(fd)->file, get_arg(f, 2), get_arg(f, 3));
+	    f->eax = file_write(get_file_node(fd)->file, get_arg(f, 2), get_arg(f, 3));
 	  }
 	  else
 	  {
-	    f->eax = -1;
+	    f->eax = 0;
 	  }
 	}
 	break;
@@ -242,6 +242,31 @@ syscall_handler (struct intr_frame *f UNUSED)
         break;
 
       case SYS_CLOSE:
+        if (! valid_arg(f, 1))
+	{
+	  f->eax = -1;
+          thread_exit();  
+	}
+	else
+	{
+	  int fd = get_arg(f, 1);
+	  if ( fd >=2 && fd < t->fd_index )
+	  {
+	    if ((f_node = get_file_node(fd)) != NULL)
+	    {
+	      file_close( f_node->file ); 
+	      list_remove( &f_node->file_elem );
+	    }
+	    else
+	    {
+	      f->eax = -1;
+	    }
+	  }
+	  else
+	  {
+	    f->eax = -1;
+	  }
+	}
         break;
 
       default:

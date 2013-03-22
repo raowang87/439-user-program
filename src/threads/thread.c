@@ -70,6 +70,8 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
+/* MODIFIED */
+void delete_fd_list ();
 
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
@@ -295,7 +297,9 @@ thread_exit (void)
 
   /* MODIFIED print out exit info */
   printf("%s: exit(%d)\n", thread_current() ->name, thread_current() ->return_status );
-
+  /* MODIFIED delete fd list */
+  delete_fd_list();
+  
 #ifdef USERPROG
   process_exit ();
 #endif
@@ -650,6 +654,24 @@ struct file_node* get_file_node (int fd)
     {
       return f_node;
     }
+  }
+
+  return NULL;
+}
+
+/* MODIFIED.
+   close all fds of current thread. */
+void
+delete_fd_list ()
+{
+  struct list_elem *elem = list_head(&thread_current()->file_list);
+  struct file_node *f_node;
+
+  while ((elem = list_next(elem)) != list_tail(&thread_current()->file_list))
+  {
+    f_node = list_entry(elem, struct file_node, file_elem);
+
+    file_close( f_node->file );
   }
 
   return NULL;
